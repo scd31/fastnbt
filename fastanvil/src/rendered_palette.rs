@@ -118,7 +118,7 @@ impl Palette for RenderedPalette {
 
         let col = self
             .blockstates
-            .get(block.encoded_description())
+            .get(&block.encoded_description())
             .or_else(|| self.blockstates.get(block.name()));
 
         match col {

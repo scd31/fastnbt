@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{collections::HashMap, ops::Range};
 
 use fastnbt::{error::Result, from_bytes};
 /// 1.2 to 1.12
@@ -26,13 +26,11 @@ use crate::{biome::Biome, Chunk, HeightMode};
 
 pub static AIR: Lazy<Block> = Lazy::new(|| Block {
     name: "minecraft:air".to_owned(),
-    encoded: "minecraft:air|".to_owned(),
-    archetype: BlockArchetype::Airy,
+    properties: HashMap::new(),
 });
 pub static SNOW_BLOCK: Lazy<Block> = Lazy::new(|| Block {
     name: "minecraft:snow_block".to_owned(),
-    encoded: "minecraft:snow_block|".to_owned(),
-    archetype: BlockArchetype::Snowy,
+    properties: HashMap::new(),
 });
 
 /// A Minecraft chunk.

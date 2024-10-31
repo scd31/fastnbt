@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{Block, BlockArchetype};
 
 macro_rules! coloured_block {
@@ -21,11 +23,7 @@ macro_rules! coloured_block {
             15 => "black",
             _ => unreachable!(),
         };
-        Block {
-            name: format!("minecraft:{col}_{}", $a),
-            encoded: format!("minecraft:{col}_{}|", $a),
-            archetype: BlockArchetype::Normal,
-        }
+        Block::new(format!("minecraft:{col}_{}", $a))
     }};
 }
 
@@ -41,9 +39,7 @@ pub fn init_default_block(block_id: u16, data_value: u8) -> Block {
 }
 
 fn modern_block(block_name: &'static str, data_value: u8) -> Block {
-    let encoded = format!("{}|", block_name);
     let ns = |s| format!("minecraft:{s}"); // add namespace
-    let enc0 = |s| format!("minecraft:{s}|");
 
     // This function will get very large and complicated, need some way to break
     // it down. Could definitely use some macros for things like the wood/leaf types.
@@ -61,10 +57,13 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 6 | 7 => "invalid_double_wooden_slab",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("type".to_string(), "double".to_string());
+
             Block {
                 name: format!("{kind}_slab"),
-                encoded: format!("{kind}_slab|type=double"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "wooden_slab" => {
@@ -85,10 +84,13 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 1 => "top",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("type".to_string(), top.to_string());
+
             Block {
                 name: format!("{kind}_slab"),
-                encoded: format!("{kind}_slab|type={top}"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "flower" => {
@@ -106,11 +108,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 9..=15 => "invalid_flower",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "red_sandstone" => {
             let kind = data_value & 0b0011;
@@ -121,11 +120,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 3 => "invalid_red_sandstone",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "sandstone" => {
             let kind = data_value & 0b0011;
@@ -136,11 +132,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 3 => "invalid_sandstone",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "double_stone_slab" => {
             let kind = data_value & 0b0111;
@@ -155,10 +148,13 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 7 => "quartz",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("type".to_string(), "double".to_string());
+
             Block {
                 name: format!("{kind}_slab"),
-                encoded: format!("{kind}_slab|type=double"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "stone_slab" => {
@@ -180,17 +176,23 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 1 => "top",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("type".to_string(), top.to_string());
             Block {
                 name: format!("{kind}_slab"),
-                encoded: format!("{kind}_slab|type={top}"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
-        "double_stone_slab2" => Block {
-            name: ns("red_sandstone_slab"),
-            encoded: enc0("red_sandstone_slab|type=double"),
-            archetype: BlockArchetype::Normal,
-        },
+        "double_stone_slab2" => {
+            let mut properties = HashMap::new();
+            properties.insert("type".to_string(), "double".to_string());
+
+            Block {
+                name: ns("red_sandstone_slab"),
+                properties,
+            }
+        }
         "stone_slab2" => {
             let top = data_value & 0b1000;
             let top = match top {
@@ -198,10 +200,12 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 8 => "top",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("type".to_string(), top.to_string());
             Block {
                 name: ns("red_sandstone_slab"),
-                encoded: format!("red_sandstone_slab|type={top}"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "stained_glass" => {
@@ -220,11 +224,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 1 => "red_sand",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "sapling" => {
             let kind = data_value & 0b0111;
@@ -237,11 +238,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 5 => "dark_oak_sapling",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "dirt" => {
             let kind = data_value & 0b0011;
@@ -251,11 +249,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 2 => "podzol",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "stone" => {
             let kind = data_value & 0b0111;
@@ -269,11 +264,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 6 => "polished_andesite",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(kind),
-                encoded: enc0(kind),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(kind))
         }
         "leaves" => {
             let leaf = data_value & 0b0011;
@@ -284,11 +276,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 3 => "jungle_leaves",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(leaf),
-                encoded: enc0(leaf),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(leaf))
         }
         "leaves2" => {
             let leaf = data_value & 0b0011;
@@ -298,11 +287,8 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 2 | 3 => "invalid_leaves",
                 _ => unreachable!(),
             };
-            Block {
-                name: ns(leaf),
-                encoded: enc0(leaf),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(ns(leaf))
         }
         "log" => {
             let log = data_value & 0b0011;
@@ -321,10 +307,13 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 3 => "jungle_log",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("axis".to_string(), axis.to_string());
+
             Block {
                 name: ns(log),
-                encoded: format!("minecraft:{log}|axis={axis}"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "log2" => {
@@ -343,18 +332,23 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 2 | 3 => "invalid_log",
                 _ => unreachable!(),
             };
+
+            let mut properties = HashMap::new();
+            properties.insert("axis".to_string(), axis.to_string());
+
             Block {
                 name: ns(log),
-                encoded: format!("minecraft:{log}|axis={axis}"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "snow_layer" => {
             let layers = (data_value & 0b0111) + 1;
+
+            let mut properties = HashMap::new();
+            properties.insert("layers".to_string(), layers.to_string());
             Block {
                 name: ns("snow"),
-                encoded: format!("minecraft:snow|layers={layers}"),
-                archetype: BlockArchetype::Normal,
+                properties,
             }
         }
         "stained_hardened_clay" => {
@@ -377,32 +371,13 @@ fn modern_block(block_name: &'static str, data_value: u8) -> Block {
                 15 => "black",
                 _ => unreachable!(),
             };
-            Block {
-                name: format!("minecraft:{col}_terracotta"),
-                encoded: format!("minecraft:{col}_terracotta|"),
-                archetype: BlockArchetype::Normal,
-            }
+
+            Block::new(format!("minecraft:{col}_terracotta"))
         }
-        "hardened_clay" => Block {
-            name: ns("terracotta"),
-            encoded,
-            archetype: BlockArchetype::Normal,
-        },
-        "tallgrass" => Block {
-            name: ns("tall_grass"),
-            encoded,
-            archetype: BlockArchetype::Normal,
-        },
-        "waterlily" => Block {
-            name: ns("lily_pad"),
-            encoded,
-            archetype: BlockArchetype::Normal,
-        },
-        _ => Block {
-            name: ns(block_name),
-            encoded,
-            archetype: BlockArchetype::Normal,
-        },
+        "hardened_clay" => Block::new(ns("terracotta")),
+        "tallgrass" => Block::new(ns("tall_grass")),
+        "waterlily" => Block::new(ns("lily_pad")),
+        _ => Block::new(ns(block_name)),
     }
 }
 
